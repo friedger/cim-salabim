@@ -24,14 +24,16 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:text="@string/hello" />
+                android:hint="msg"
+                android:text="" />
 
             <EditText
                 android:name="@+id/textviewamount"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"                
                 android:inputType="text"
-                android:text="@string/hello" >
+                android:hint="amount"
+                android:text="" >
 
                 <requestFocus />
             </EditText>
@@ -49,8 +51,8 @@
             android:src="@android:drawable/btn_plus" android:onClick="onAddClick"/>
 
     </LinearLayout>
-
-    <SurfaceView
+
+    <de.m19r.cim.ui.widget.ImageEditView
         android:id="@+id/surfaceview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />

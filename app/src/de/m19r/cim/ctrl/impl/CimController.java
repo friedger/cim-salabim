@@ -6,21 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import de.m19r.cim.ctrl.CommandType;
 import de.m19r.cim.ctrl.ICimController;
 import de.m19r.cim.ctrl.ICommand;
 import de.m19r.cim.ctrl.ImageCommand;
 import de.m19r.cim.ctrl.TextCommand;
+import de.m19r.cim.rcs.CimCommandListener;
 
 public class CimController implements ICimController {
 
 	private List<ICommand> commands = new ArrayList<ICommand>();
 
 	private DrawHelper delegate = new DrawHelper();
-	
+
 	private Drawable image = null;
-	
 
 	public CimController() {
 
@@ -43,11 +45,18 @@ public class CimController implements ICimController {
 			status = true;
 
 		} else {
-			ImageCommand ic = (ImageCommand)c;
+			ImageCommand ic = (ImageCommand) c;
 			image = this.LoadImageFromWeb(ic.getImgUrl());
 			commands.clear();
-			commands.add(ic);
-			status = true;
+
+			if (image == null) {
+				Log.v("cimcontroller", "img failed");
+				status = false;
+			} else {
+				commands.add(ic);
+				status = true;
+			}
+
 		}
 
 		return status;
@@ -59,7 +68,7 @@ public class CimController implements ICimController {
 
 		if (last >= 0) {
 			commands.remove(last);
-			if(last == 0) { // the first command in the list is the image...
+			if (last == 0) { // the first command in the list is the image...
 				image = null;
 			}
 		}
@@ -92,30 +101,29 @@ public class CimController implements ICimController {
 
 	@Override
 	public boolean replay(Canvas canvas) {
-
+		canvas.drawColor(Color.BLUE);
+		
 		boolean status = true;
 		for (ICommand c : commands) {
 			if (c.getType().equals(CommandType.TEXT)) {
 				status = status & doText((TextCommand) c, canvas);
 			} else {
-				doImage(image,canvas);
+				doImage(image, canvas);
 			}
 		}
 
 		return status;
 	}
-	
-	protected Drawable LoadImageFromWeb(String url)
-	   {
-	  try
-	  {
-	   InputStream is = (InputStream) new URL(url).getContent();
-	   Drawable d = Drawable.createFromStream(is, "src name");
-	   return d;
-	  }catch (Exception e) {
-	   System.out.println("Exc="+e);
-	   return null;
-	  }
-	 }
+
+	protected Drawable LoadImageFromWeb(String url) {
+		try {
+			InputStream is = (InputStream) new URL(url).getContent();
+			Drawable d = Drawable.createFromStream(is, "src name");
+			return d;
+		} catch (Exception e) {
+			System.out.println("Exc=" + e);
+			return null;
+		}
+	}
 
 }

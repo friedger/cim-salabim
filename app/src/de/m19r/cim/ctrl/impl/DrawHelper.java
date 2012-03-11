@@ -18,7 +18,7 @@ public class DrawHelper {
 		// set paint values for text...
 		paint = new Paint();
 		paint.setColor(Color.WHITE);
-		paint.setTextSize(8f);
+		paint.setTextSize(15f);
 		paint.setTypeface(Typeface.MONOSPACE);
 	}
 
@@ -27,7 +27,7 @@ public class DrawHelper {
 		if(drw == null) {
 			return false;
 		}
-	
+		c.drawColor(Color.BLACK);
 		// draw on canvas
 		drw.draw(c);
 

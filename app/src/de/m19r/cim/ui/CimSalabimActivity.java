@@ -3,6 +3,7 @@ package de.m19r.cim.ui;
 import java.io.IOException;
 
 import jibe.sdk.client.JibeIntents;
+import jibe.sdk.client.apptoapp.Config;
 import jibe.sdk.client.simple.authentication.AuthenticationHelper;
 import jibe.sdk.client.simple.authentication.AuthenticationHelperListener;
 import android.app.Activity;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 import de.m19r.cim.CimIntents;
 import de.m19r.cim.CimSalabimApplication;
@@ -25,6 +27,7 @@ import de.m19r.cim.R;
 import de.m19r.cim.ctrl.ImageCommand;
 import de.m19r.cim.ctrl.TextCommand;
 import de.m19r.cim.ctrl.impl.CimController;
+import de.m19r.cim.rcs.CimCommandListener;
 import de.m19r.cim.rcs.CimSocketConnection;
 import de.m19r.cim.ui.widget.ImageEditView;
 
@@ -47,24 +50,29 @@ public class CimSalabimActivity extends Activity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Config.getInstance().setAppToAppIdentifier(
+				CimSalabimApplication.APP_ID, CimSalabimApplication.APP_SECRET);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mCimController = new CimController();
-		
-		mImage = (ImageEditView) findViewById(R.id.surfaceview);		
+
+		mImage = (ImageEditView) findViewById(R.id.surfaceview);
 		mImage.setCimController(mCimController);
-		
+
 		mAddButton = (ImageButton) findViewById(R.id.imageButton1);
-		mTextButton = (EditText)findViewById(R.id.editText1);
-		mTextButton.setOnKeyListener(new View.OnKeyListener() {
-			
+		mTextButton = (EditText) findViewById(R.id.editText1);
+		mTextButton.setOnEditorActionListener(new OnEditorActionListener() {
+
 			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
+			public boolean onEditorAction(TextView v, int keyCode,
+					KeyEvent event) {
 				mCimController.popCommand();
-				mCimController.pushCommand(new TextCommand(mTextButton.getText().toString(), 40, 40));
+				mCimController.pushCommand(new TextCommand(mTextButton
+						.getText().toString(), 40, 40));
 				mImage.invalidate();
 				return true;
 			}
+
 		});
 	}
 
@@ -78,6 +86,7 @@ public class CimSalabimActivity extends Activity {
 	}
 
 	private void triggerJibeAuthentication() {
+
 		// first time start
 		if (mAuthHelper == null) {
 			// create AuthHelper and show up dialog
@@ -102,8 +111,9 @@ public class CimSalabimActivity extends Activity {
 	}
 
 	public void onAddClick(View target) {
-		startActivityForResult(new Intent(this, FindFriendsActivity.class),
-				REQUEST_FRIEND);
+		// startActivityForResult(new Intent(this, FindFriendsActivity.class),
+		// REQUEST_FRIEND);
+		openConnection("+491638025812");
 	}
 
 	@Override
@@ -161,10 +171,26 @@ public class CimSalabimActivity extends Activity {
 				JibeIntents.ACTION_INCOMING_SESSION + '.'
 						+ CimSalabimApplication.APP_ID));
 
+		Log.v(LOG_TAG, "create");
 		mConnection = new CimSocketConnection(this, null);
-		mConnection.setAutoAccept(true);
-		mCimController.pushCommand(new ImageCommand("http://de.droidcon.com/dc2011/images/logos/2d/droid_con500.jpg"));
+		mCimController
+				.pushCommand(new ImageCommand(
+						"http://de.droidcon.com/dc2011/images/logos/2d/droid_con500.jpg"));
 		mCimController.pushCommand(new TextCommand("", 20, 20));
+
+		mConnection.setCimListener(new CimCommandListener() {
+
+			@Override
+			public void received(String txt) {
+				mCimController.popCommand();
+				mCimController.pushCommand(new TextCommand(txt, 40, 40));
+				mImage.invalidate();
+
+			}
+
+		});
+		mConnection.setAutoAccept(true);
+
 	}
 
 	private void openConnection(String remoteUserId) {
