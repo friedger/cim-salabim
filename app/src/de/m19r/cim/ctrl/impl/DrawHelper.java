@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import de.m19r.cim.ctrl.ImageCommand;
 import de.m19r.cim.ctrl.TextCommand;
 
 public class DrawHelper {
@@ -23,14 +22,8 @@ public class DrawHelper {
 		paint.setTypeface(Typeface.MONOSPACE);
 	}
 
-	public boolean setImage(ImageCommand ic, Canvas c) {
-		if (!ic.isValid()) {
-			return false;
-		}
-
-		// load image into bitmap
-		Drawable drw = this.LoadImageFromWeb(ic.getImgUrl());
-		
+	public boolean setImage(Drawable drw, Canvas c) {
+				
 		if(drw == null) {
 			return false;
 		}
@@ -50,8 +43,9 @@ public class DrawHelper {
 		return true;
 
 	}
+		
 	
-	 private Drawable LoadImageFromWeb(String url)
+	 protected Drawable LoadImageFromWeb(String url)
 	   {
 	  try
 	  {

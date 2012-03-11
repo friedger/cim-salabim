@@ -5,14 +5,30 @@ import android.graphics.Canvas;
 public interface ICimController {
 	
 	/**
-	 * push a new command to be executed immediatly. If the specified
+	 * push a new command. If the specified
 	 * command is an image command, then command stack is cleared
-	 * and the canvas is initialized with the specified image
 	 * 
 	 * @param command to be executed
 	 * @return true, on success
 	 */
-	public boolean  pushCommand(ICommand command,Canvas c);
+	public boolean  pushCommand(ICommand command);
+	
+	/**
+	 * pop the last command from the list of commands
+	 * 
+	 * @param command
+	 * @param c
+	 * @return
+	 */
+	public boolean popCommand();
+	
+	/**
+	 * replay all stored commands on the specified canvas
+	 * 
+	 * @param canvas to be used
+	 * @return
+	 */
+	public boolean replay(Canvas canvas);
 	
 	
 }
