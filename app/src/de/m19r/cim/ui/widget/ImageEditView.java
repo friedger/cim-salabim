@@ -1,21 +1,23 @@
-package de.m19r.cim.ui;
+package de.m19r.cim.ui.widget;
 
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
+import de.m19r.cim.ctrl.ICimController;
+import de.m19r.cim.ctrl.ICommand;
 
 public class ImageEditView extends SurfaceView implements
 		SurfaceHolder.Callback {
+
+	public ICimController mCimController;
 
 	class ImageEditThread extends Thread {
 		Context mContext;
@@ -99,12 +101,13 @@ public class ImageEditView extends SurfaceView implements
 		public void setSurfaceSize(int width, int height) {
 			// synchronized to make sure these all change atomically
 			synchronized (mSurfaceHolder) {
-//				mCanvasWidth = width;
-//				mCanvasHeight = height;
-//
-//				// don't forget to resize the background image
-//				mBackgroundImage = Bitmap.createScaledBitmap(mBackgroundImage,
-//						width, height, true);
+				// mCanvasWidth = width;
+				// mCanvasHeight = height;
+				//
+				// // don't forget to resize the background image
+				// mBackgroundImage =
+				// Bitmap.createScaledBitmap(mBackgroundImage,
+				// width, height, true);
 			}
 		}
 
@@ -113,9 +116,7 @@ public class ImageEditView extends SurfaceView implements
 		 * Canvas.
 		 */
 		private void doDraw(Canvas canvas) {
-			for (ICommand cmd : mCommands) {
-				mCimController(canvas, cmd);
-			}
+			mCimController.replay(canvas);
 		}
 
 	}
@@ -208,5 +209,9 @@ public class ImageEditView extends SurfaceView implements
 			} catch (InterruptedException e) {
 			}
 		}
+	}
+	
+	public void setCimController(ICimController cimController) {
+		this.mCimController = cimController;
 	}
 }
