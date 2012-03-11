@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, CimSalabimActivity!</string>
     <string name="app_name">CimSalabim</string>
+    <string name="add_collaborator">plus</string>
 
 </resources>
