@@ -28,8 +28,7 @@ public class CimSocketConnection extends DatagramSocketConnection {
 
 	private static final String LOG_TAG = CimSocketConnection.class.getName();
 
-	private boolean mDoSending = false;
-	private Thread senderThread;
+	private boolean mDoSending = false;	
 
 	private boolean mDoReceiving = false;
 	private Thread receiverThread;
@@ -39,40 +38,7 @@ public class CimSocketConnection extends DatagramSocketConnection {
 	BlockingQueue<String> mQueue = new LinkedBlockingQueue<String>();
 	Object mSyncRoot = new Object();
 
-	Thread mSenderThread = new Thread(new Runnable() {
-
-		@Override
-		public void run() {
-
-			String txt;
-			try {
-				txt = mQueue.take();
-
-				byte[] packet;
-				try {
-					packet = txt.getBytes("UTF-8");
-
-					Log.i(LOG_TAG, "Sending:" + txt);
-
-					mConnection.send(packet, 0, packet.length);
-
-					synchronized (mSyncRoot) {
-						mSyncRoot.wait(5000);
-						// TOOD check msg as "failed"
-					}
-
-				} catch (Exception e) {
-					e.printStackTrace();
-					stop();
-				}
-
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-				stop();
-			}
-
-		}
-	});
+	Thread mSenderThread;
 
 	protected CimCommandListener mListener;
 
@@ -139,7 +105,42 @@ public class CimSocketConnection extends DatagramSocketConnection {
 			SimpleConnectionStateListener listener) {
 		super(cxt, listener);
 
-		senderThread.start();
+		mSenderThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				String txt;
+				try {
+					txt = mQueue.take();
+
+					byte[] packet;
+					try {
+						packet = txt.getBytes("UTF-8");
+
+						Log.i(LOG_TAG, "Sending:" + txt);
+
+						mConnection.send(packet, 0, packet.length);
+
+						synchronized (mSyncRoot) {
+							mSyncRoot.wait(5000);
+							// TOOD check msg as "failed"
+						}
+
+					} catch (Exception e) {
+						e.printStackTrace();
+						stop();
+					}
+
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+					stop();
+				}
+
+			}
+		});
+		
+		mSenderThread.start();
 	}
 
 	public void stop() {
